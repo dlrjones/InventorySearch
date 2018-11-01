@@ -86,9 +86,10 @@
                     <asp:HyperLink ID="hypTopLink1" runat="server" CssClass="upperLinks" NavigateUrl="https://hmc.uwmedicine.org/" Target="_blank">HMC Home</asp:HyperLink> &nbsp;|&nbsp;
                     <asp:HyperLink ID="hypTopLink3" runat="server" CssClass="upperLinks" NavigateUrl="https://info.medical.washington.edu/" Target="_blank">Online Info</asp:HyperLink> &nbsp;|&nbsp;
                     <asp:HyperLink ID="hypTopLink4" runat="server" CssClass="upperLinks" NavigateUrl="http://myuw.washington.edu/" Target="_blank">My UW</asp:HyperLink><br />
-                    <div style="float:right;margin-top:15px;"><asp:ImageButton ID="ImageButton1" runat="server" ImageUrl="~/images/btn_search.gif" /></div>
-                    <div style="float:right;margin:15px 3px 0 0;"><asp:TextBox ID="TextBox1" runat="server"></asp:TextBox></div>
+                  <%--   <div style="float:right;margin-top:15px;"><asp:ImageButton ID="ImageButton1" runat="server" ImageUrl="~/images/btn_search.gif" /></div>
+                    <div style="float:right;margin:15px 3px 0 0;"><asp:TextBox ID="TextBox1" runat="server"></asp:TextBox></div>--%>
                 </td>
+                
             </tr>
         </table>
         <div id="divDivider" runat="server" class="divider"></div>
@@ -149,7 +150,7 @@
                                             <asp:DropDownList ID="ddlLocation" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlLocation_SelectedIndexChanged" CausesValidation="False">
                                                 <asp:ListItem Value="ALL" Selected="True">All</asp:ListItem>
                                                 <asp:ListItem Value="MED">Med Stores</asp:ListItem>
-                                                <asp:ListItem Value="ANGIO">Angio</asp:ListItem>
+                                             <%--   <asp:ListItem Value="ANGIO">Angio</asp:ListItem>     --%>
                                                 <asp:ListItem Value="ORSTORES">OR Stores</asp:ListItem>
                                                 <asp:ListItem Value="ORIMPLANT">OR Implant</asp:ListItem>
                                                 <asp:ListItem Value="WHSE">Warehouse</asp:ListItem>
@@ -232,8 +233,8 @@
 
                     <asp:TemplateField HeaderText="Image">
                         <ItemTemplate>
-                            <asp:Image ID="imgItem" runat="server" ImageUrl='<%# GetImageUrl(Eval("[Item #]") + ";" + Eval("Location"))%>' Width="96px" BorderWidth="1px" 
-                                  BorderStyle="Solid" BorderColor="#5e5e5e" />
+                            <asp:ImageButton ID="imgItem" runat="server" ImageUrl='<%# GetImageUrl(Eval("[Item #]") + ";" + Eval("Location"))%>' Width="96px" BorderWidth="1px" 
+                                  BorderStyle="Solid" BorderColor="#5e5e5e" onclick="imgItem_Click" CommandArgument='<%# Eval("[Item #]") + ";" + Eval("Location") %>'/>
                         </ItemTemplate>
                     </asp:TemplateField>
 
