@@ -1,0 +1,619 @@
+﻿ + ";" + Eval("Location")
+
+
+ protected void lbtnItemNum_Click(object sender, EventArgs e)
+        {
+            Session["locationID"] = "1002";
+            Server.MapPath("~/details.aspx");
+            //    window.open( "Details", "toolbar=no, location=no,status=yes,menubar=no,scrollbars=yes,resizable=no, width=400,height=200,left=430,top=100");
+            //    details dtail = new details();
+            //    string url = "../details.aspx";
+            //    string fullURL = "window.open('" + url + "', '_blank', 'height=600,width=1000,status=yes,toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,titlebar=no' );";
+            //ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", fullURL, true);
+            ////mpeItemInfo.Show();
+            ////LinkButton ibtnItemNum = (LinkButton)sender;
+            //string item = ibtnItemNum.CommandArgument.Trim();
+            string item = ((LinkButton)sender).CommandArgument.ToString();
+            //lbtnItemNum.CommandArgument.Trim();
+            //string query = "details.aspx?item=" + item + "&height=100&width=200&connect=" + GetAccess();
+            string query = "details.aspx?item=" + item.Trim() + "&connect=" + GetAccess();
+            
+            string newWin = "window.open('" + query + "','_blank');";
+            string newTab = "<script type = 'text/javascript'> " + "window.open('" + query + "','_blank')</script> ;";
+
+            ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", newTab, true);
+           // ClientScript.RegisterStartupScript(this.GetType(), "OpenWindow", newWin, true);  //rendered before the final closing form tag
+            //RegisterClientScriptBlock rendered after opening form tag
+            Response.Redirect(query);
+            // Response.Redirect("details.aspx?item=" + item + "&height=100&width=200");
+
+            //ViewState["itemNum"] = ibtnItemNum.CommandArgument.Trim();
+            //ViewState["view"] = "details";
+
+
+            LoadItemInfo();
+        }
+
+___________________________________________________________________________________________________________________________
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="details.aspx.cs" Inherits="InventorySearch.details" %>
+
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+
+
+<head runat="server">
+  <meta charset="UTF-8">
+  <title></title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+  <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Overpass:300,400,600,800'>
+
+      <link rel="stylesheet" href="css/style.css">
+    <style type="text/css">
+       
+        
+        .dividerSmall
+        {
+            background-image:url("images/divider.gif");
+            background-repeat:repeat-x;
+            width:100%;
+            height:2px;
+            margin:10px 0 10px 0;
+        }
+        </style>
+  
+</head>
+
+<body>
+    <form id="form1" runat="server">
+
+
+  <!-- 
+  
+  Radio version of tabs.
+
+  Requirements:
+  - not rely on specific IDs for CSS (the CSS shouldn't need to know specific IDs)
+  - flexible for any number of unknown tabs [2-6]
+  - accessible
+
+  Caveats:
+  - since these are checkboxes the tabs not tab-able, need to use arrow keys
+
+  Also worth reading:
+  http://simplyaccessible.com/article/danger-aria-tabs/
+-->
+
+<div class="tabset">
+  <!-- Tab 1 -->
+  <input type="radio" name="tabset" id="tab1" aria-controls="marzen" checked>
+  <label for="tab1">Details</label>
+  <!-- Tab 2 -->
+  <input type="radio" name="tabset" id="tab2" aria-controls="rauchbier">
+  <label for="tab2">Photo</label>
+  <!-- Tab 3 
+  <input type="radio" name="tabset" id="tab3" aria-controls="dunkles">
+  <label for="tab3">Dunkles Bock</label>-->
+
+    <div class="gvControls">    </div>
+        <div id="divDivider" runat="server" class="divider"></div>
+
+  <div class="gvControls" width="40" height="20">  <asp:Label ID="Label1" runat="server" Text="Label"></asp:Label>      
+      <asp:Panel ID="Panel1" runat="server" BackImageUrl =" ">
+           <asp:Table ID="Table1" runat="server" cellpadding="0" cellspacing="0" style="margin-top:15px;">
+               <asp:TableRow ></asp:TableRow> 
+                
+               
+      </asp:Table>
+      </asp:Panel>
+    </div>
+
+  <div class="tab-panels">
+    <section id="marzen" class="tab-panel">
+     <asp:TextBox ID="tbItem" runat="server"></asp:TextBox>       
+  </section>
+    
+    <section id="rauchbier" class="tab-panel">
+      <h2>6B. Rauchbier</h2>
+      <p><strong>Overall Impression:</strong>  An elegant, malty German amber lager with a balanced, complementary beechwood smoke character. Toasty-rich malt in aroma and flavor, restrained bitterness, low to high smoke flavor, clean fermentation profile, and an attenuated finish are characteristic.</p>
+      <p><strong>History:</strong> A historical specialty of the city of Bamberg, in the Franconian region of Bavaria in Germany. Beechwood-smoked malt is used to make a Märzen-style amber lager. The smoke character of the malt varies by maltster; some breweries produce their own smoked malt (rauchmalz).</p>
+    </section>
+  <!--  <section id="dunkles" class="tab-panel">
+      <h2>6C. Dunkles Bock</h2>
+      <p><strong>Overall Impression:</strong> A dark, strong, malty German lager beer that emphasizes the malty-rich and somewhat toasty qualities of continental malts without being sweet in the finish.</p>
+      <p><strong>History:</strong> Originated in the Northern German city of Einbeck, which was a brewing center and popular exporter in the days of the Hanseatic League (14th to 17th century). Recreated in Munich starting in the 17th century. The name “bock” is based on a corruption of the name “Einbeck” in the Bavarian dialect, and was thus only used after the beer came to Munich. “Bock” also means “Ram” in German, and is often used in logos and advertisements.</p>
+    </section> -->
+      <section id="dunkles" class="tab-panel"></section>
+      <asp:GridView ID="gvItemDetail" runat="server" DataSourceID="SqlDataSource2" OnSelectedIndexChanged="gvItemDetail_SelectedIndexChanged">
+      </asp:GridView>
+      <ajaxToolkit:TabContainer ID="TabContainer2" runat="server">
+      </ajaxToolkit:TabContainer>
+      <ajaxToolkit:TabContainer ID="TabContainer1" runat="server"></ajaxToolkit:TabContainer>
+      <asp:SqlDataSource ID="SqlDataSource1" runat="server"></asp:SqlDataSource>
+      
+  </div>
+  
+</div>
+
+<!-- <p><small>Source: <cite><a href="https://www.bjcp.org/stylecenter.php">BJCP Style Guidelines</a></cite></small></p> -->
+  
+  
+        
+    </form>
+  
+  
+</body>
+</html>
+*********************************************************************************************************************************************************
+
+SQL for pop up screen:
+SELECT t1.ITEM_NO, t1.DESCR, t1.CTLG_NO, 
+
+CONVERT(BIT, isnull((SELECT QTY FROM dbo.SLOC_ITEM WHERE (LOC_ID IN ('1002')) AND (ITEM_ID = t1.ITEM_ID)),0)) AS STOCKED, 
+
+t1.DESCR2,  
+SUBSTRING(dbo.ITEM_VEND_PKG.TO_UM_CD, 7, 2) AS PKG_TO_UM_CD, 
+SUBSTRING(dbo.ITEM_VEND_PKG.UM_CD, 7, 2) AS PKG_UM_CD, dbo.ITEM_VEND_PKG_FACTOR.TO_QTY AS UM_QTY, 
+ITEM_VEND_PKG.PRICE AS UM_PRICE,
+ MFR.NAME, t1.DESCR1 
+
+FROM ITEM AS t1 
+JOIN ITEM_VEND ON ITEM_VEND.ITEM_ID = t1.ITEM_ID 
+JOIN MFR ON t1.MFR_ID = MFR.MFR_ID 
+JOIN ITEM_VEND_PKG ON ITEM_VEND.ITEM_VEND_ID = ITEM_VEND_PKG.ITEM_VEND_ID 
+JOIN ITEM_VEND_PKG_FACTOR ON dbo.ITEM_VEND_PKG.ITEM_VEND_ID = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_ID AND 
+dbo.ITEM_VEND_PKG.ITEM_VEND_IDB = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_IDB AND 
+dbo.ITEM_VEND_PKG.UM_CD = dbo.ITEM_VEND_PKG_FACTOR.UM_CD AND 
+dbo.ITEM_VEND_PKG.TO_UM_CD = dbo.ITEM_VEND_PKG_FACTOR.TO_UM_CD 
+JOIN VEND ON dbo.ITEM_VEND.VEND_ID = dbo.VEND.VEND_ID 
+WHERE (t1.ITEM_NO = '1002') 
+AND (t1.STAT IN (1, 2)) 
+AND ITEM_VEND.SEQ_NO = 1
+
+DETAIL.ASPX
+using System;
+using System.Web.UI;
+using System.Data;
+using System.Data.SqlClient;
+using System.Collections.Specialized;
+
+*********************************************************************************************************************************************************
+
+
+namespace InventorySearch
+{
+    public partial class details : System.Web.UI.Page
+    {
+        private System.Data.SqlClient.SqlConnection dbaseConn;
+        private SqlDataAdapter dataAdapter = new SqlDataAdapter();
+        private static NameValueCollection ConfigData = null;
+        private DataSet dTable = new DataSet();
+        string dbConnString = "";
+
+        protected void Page_Load(object sender, EventArgs e)
+        {           
+            string item = Request.QueryString["item"];
+            string height = Request.QueryString["height"];
+            string width = Request.QueryString["width"];
+            dbConnString = Request.QueryString["connect"];
+            Page.Title = "Item# " + item;
+
+            //tbItem.Text = item;
+            //Label1.Text = "<h3>Item #" + item + " Details</h3>";
+            LoadData();    
+        }
+       
+        protected void LoadData()
+        {
+            string sql = BuildSQL();
+            //  SqlDataSource1.SelectCommand = sql;
+            dbaseConn = new SqlConnection(dbConnString);
+            dbaseConn.Open();
+            dataAdapter = new SqlDataAdapter(sql, dbaseConn);
+            dataAdapter.Fill(dTable);
+        }
+
+        private string BuildSQL()
+        {
+            return "";
+        }
+
+        protected void gvItemDetail_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+
+
+
+*******************************************************************************************************************************************************
+
+
+
+
+
+ protected void Page_Load(object sender, EventArgs e)
+        {           
+            string item = Request.QueryString["item"];
+            string height = Request.QueryString["height"];
+            string width = Request.QueryString["width"];
+            Page.Title = "Item# " + item;
+
+            tbItem.Text = item;
+            Label1.Text = "<h3>Item #" + item + " Details</h3>";
+            LoadTable();    
+        }
+       
+        protected void LoadTable()
+        {
+            int numrows = 9;
+            int numcells = 2;
+            int counter = 1;
+            for (int rowNum = 0; rowNum < numrows; rowNum++)
+            {
+                TableRow rw = new TableRow();
+                rw.BorderWidth = 0;
+                rw.Height = 20;
+                for (int cellNum = 0; cellNum < numcells; cellNum++)
+                {
+                    TableCell cel = new TableCell();
+                  //  cel.Height = 20;
+                    //cel.BorderWidth = 0;
+                    //cel.BorderColor = Color.Black;
+
+                    cel.BackColor = Color.White;                    
+                    cel.Width = 600;
+                    cel.Text = counter.ToString();
+
+                    if (counter % 2 > 0) {
+                        cel.BackColor = Color.LightGray;
+                        cel.Width = 200;
+                        cel.Text = "Primary";
+                        if (rowNum % 2 > 0)
+                        {
+                            cel.Text = "Description";
+                        }
+                    }
+                    counter++;
+                    rw.Cells.Add(cel);
+                }
+                Table1.Rows.Add(rw);
+                if (rowNum % 2 == 0)
+                {
+                    rw.BorderWidth = 1;                    
+                    rw.BorderColor = Color.Black;
+                }
+            }
+        }
+         
+    }
+
+***************************************************************************************************************************************************
+This is the lbtnItemNum_Click that does the pop up widow
+
+ protected void lbtnItemNum_Click(object sender, EventArgs e)
+        {
+            //Server.MapPath("~/details.aspx")
+            //window.open("details.aspx") "Details", "toolbar=no, location=no,status=yes,menubar=no,scrollbars=yes,resizable=no, width=400,height=200,left=430,top=100");
+            //details dtail = new details();
+            //string url = "../details.aspx";
+            //string fullURL = "window.open('" + url + "', '_blank', 'height=600,width=1000,status=yes,toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,titlebar=no' );";
+            mpeItemInfo.Show();
+            LinkButton ibtnItemNum = (LinkButton)sender;
+            //////////string item = ibtnItemNum.CommandArgument.Trim();
+            //////////string query = "details.aspx?item=" + item + "&height=100&width=200&connect=" + GetAccess();
+            //////////string newWin = "window.open('" + query + "');";
+            //////////ClientScript.RegisterStartupScript(this.GetType(), "pop", newWin, true);
+
+            //Response.Redirect("details.aspx?item=" + item + "&height=100&width=200");
+
+            ViewState["itemNum"] = ibtnItemNum.CommandArgument.Trim();
+            ViewState["view"] = "details";
+
+
+            LoadItemInfo();
+        }
+
+
+This is the LoadItemInfo....
+
+
+  protected void LoadItemInfo()
+        {
+            dbaseConn = new SqlConnection(GetAccess());
+            try
+            {
+                if (ViewState["view"].ToString() == "details")
+                { mvItemInfo.ActiveViewIndex = 0; DetailsSwitch(); }
+                else if (ViewState["view"].ToString() == "photo")
+                { mvItemInfo.ActiveViewIndex = 1; PhotoSwitch(); }
+                string itemNum = ViewState["itemNum"].ToString();
+                litItemNumDetails.Text = itemNum;
+                litItemNumPhoto.Text = itemNum;
+                lblItemNum.Text = itemNum;
+                string sql = "SELECT t1.ITEM_NO, t1.DESCR, t1.CTLG_NO, " +
+     "CONVERT(BIT, isnull((SELECT QTY FROM dbo.SLOC_ITEM WHERE (LOC_ID IN (" + Session["locationID"] + ")) AND (ITEM_ID = t1.ITEM_ID)),0)) AS STOCKED, t1.DESCR2,  " +
+     "SUBSTRING(dbo.ITEM_VEND_PKG.TO_UM_CD, 7, 2) AS PKG_TO_UM_CD, " +
+     "SUBSTRING(dbo.ITEM_VEND_PKG.UM_CD, 7, 2) AS PKG_UM_CD, dbo.ITEM_VEND_PKG_FACTOR.TO_QTY AS UM_QTY, " +
+     "ITEM_VEND_PKG.PRICE AS UM_PRICE, MFR.NAME, t1.DESCR1 " +
+    "FROM ITEM AS t1 " +
+    "JOIN ITEM_VEND ON ITEM_VEND.ITEM_ID = t1.ITEM_ID " +
+    "JOIN MFR ON t1.MFR_ID = MFR.MFR_ID " +
+    "JOIN ITEM_VEND_PKG ON ITEM_VEND.ITEM_VEND_ID = ITEM_VEND_PKG.ITEM_VEND_ID " +
+    "JOIN ITEM_VEND_PKG_FACTOR ON dbo.ITEM_VEND_PKG.ITEM_VEND_ID = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_ID AND " +
+                          "dbo.ITEM_VEND_PKG.ITEM_VEND_IDB = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_IDB AND " +
+                          "dbo.ITEM_VEND_PKG.UM_CD = dbo.ITEM_VEND_PKG_FACTOR.UM_CD AND " +
+                          "dbo.ITEM_VEND_PKG.TO_UM_CD = dbo.ITEM_VEND_PKG_FACTOR.TO_UM_CD " +
+    "JOIN VEND ON dbo.ITEM_VEND.VEND_ID = dbo.VEND.VEND_ID " +
+    "WHERE (t1.ITEM_NO = '" + itemNum + "') " +
+    "AND (t1.STAT IN (1, 2)) " +
+    "AND ITEM_VEND.SEQ_NO = 1";
+                SqlCommand comm = new SqlCommand(sql, dbaseConn);
+                dbaseConn.Open();
+                SqlDataReader dr = comm.ExecuteReader();
+                Boolean stocked = false;
+                DataSet dsPackaging = new DataSet();
+                DataTable dtPackaging;
+                dtPackaging = dsPackaging.Tables.Add();
+                dtPackaging.Columns.Add("UM", typeof(string));
+                dtPackaging.Columns.Add("UM QTY", typeof(string));
+                dtPackaging.Columns.Add("UM PRICE", typeof(string));
+                while (dr.Read())
+                {
+                    lblDescription.Text = dr[1].ToString().Trim();
+                    if (dr[4].ToString().Trim() != "")
+                    {
+                        lblNursing.Text = dr[4].ToString().Trim().ToUpper();
+                        lblNursing.Enabled = false;
+                    }
+                    else
+                    {
+                        lblNursing.Text = "<i>NO NURSING DESCRIPTION</i>";
+                        lblNursing.Enabled = false;
+                    }
+                    if (dr[10].ToString().Trim() != "")
+                    {
+                        lblAlternate.Text = dr[10].ToString().Trim().ToUpper();
+                        lblAlternate.Enabled = true;
+                    }
+                    else
+                    {
+                        lblAlternate.Text = "<i>NO ALTERNATE DESCRIPTION</i>";
+                        lblAlternate.Enabled = false;
+                    }
+                    lblAcctCatg.Text = dr[5].ToString().Trim();
+                    dtPackaging.Rows.Add(dr[6].ToString().Trim(), dr[7].ToString().Trim(), dr[8].ToString().Trim());
+                    stocked = (Boolean)dr[3];
+                    if (stocked) { lblStock.Text = "Y"; }
+                    else { lblStock.Text = "N"; }
+                    lblMfgName.Text = dr[9].ToString().Trim();
+                    lblMfgNum.Text = dr[2].ToString().Trim();
+                }
+                gvPackaging.DataSource = dsPackaging;
+                gvPackaging.DataBind();
+
+                string test = Server.MapPath("~/catalog_images/" + itemNum.Trim() + ".jpg");
+                if (File.Exists(Server.MapPath("~/catalog_images/" + itemNum.Trim() + ".jpg")))
+                {
+                    imgItemPhoto.ImageUrl = "~/catalog_images/" + itemNum.Trim() + ".jpg";
+
+                    Image objImage = Image.FromFile(Server.MapPath("~/catalog_images/" + itemNum.Trim() + ".jpg"));
+
+                    float h = objImage.Height;
+                    float w = objImage.Width;
+                    float wRatio = w / h;
+                    float hRatio = h / w;
+
+                    if (objImage.Height > 450)
+                    {
+                        int newWidth = Convert.ToInt32(wRatio * 400);
+                        imgItemPhoto.Width = newWidth;
+                        if (newWidth > 480)
+                        {
+                            imgItemPhoto.Width = 480;
+                            imgItemPhoto.Height = Convert.ToInt32(hRatio * 480);
+                        }
+                        else
+                        {
+                            imgItemPhoto.Height = 400;
+                        }
+                    }
+                    else
+                    {
+                        imgItemPhoto.Width = 480;
+                        imgItemPhoto.Height = Convert.ToInt32(hRatio * 480);
+                    }
+                    if (Session["catalogAdmin"] != null)
+                    {
+                        divUpload.Visible = true;
+                        divOptions.Visible = true;
+                        btnDelete.Visible = true;
+                        btnUploadNew.Visible = true;
+                    }
+                }
+                else
+                {
+                    if (Session["catalogAdmin"] != null)
+                    {
+                        divUpload.Visible = true;
+                        divOptions.Visible = true;
+                        btnDelete.Visible = true;
+                    }
+                    imgItemPhoto.Width = 480;
+                    imgItemPhoto.ImageUrl = "~/catalog_images/no_image.jpg";
+                }
+                if (!Page.IsPostBack) { lbtnClose.PostBackUrl = Request.UrlReferrer.AbsoluteUri; }
+            }
+            catch (Exception ex)
+            {
+                //CommonCode error = new CommonCode();
+                //error.ReportError(ex.Message, "sdsItems_Selected: catalog.aspx.cs", Session["username"].ToString());
+                //divMessage.Visible = true;
+                //litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+            }
+            finally
+            {
+                dbaseConn.Close();
+            }
+        }
+
+
+		 ////////     //Deletes an items photo
+   ////////     protected void btnDelete_Click(object sender, EventArgs e)
+   ////////     {
+   ////////         try
+   ////////         {
+   ////////             //////string itemNum = ViewState["itemNum"].ToString();
+   ////////             //////File.Delete(Server.MapPath("~/catalog_images/" + itemNum.ToString().Trim() + ".jpg"));
+   ////////             //////divOptions.Visible = true;
+   ////////             //////btnUploadNew.Visible = true;
+   ////////             //////LoadItemInfo();
+   ////////             //////gvItemList.DataBind();
+   ////////             //////mpeItemInfo.Show();
+   ////////         }
+   ////////         catch (Exception ex)
+   ////////         {
+   ////////            // CommonCode error = new CommonCode();
+   ////////             //error.ReportError(ex.Message, "btnDelete_Click: catalog.aspx.cs", Session["username"].ToString());
+   ////////             //divMessage.Visible = true;
+   ////////             //litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+   ////////         }
+   ////////     }
+
+   ////////     protected void btnUploadNew_Click(object sender, EventArgs e)
+   ////////     {
+   ////////         //////divUpload.Visible = true;
+   ////////         //////divOptions.Visible = false;
+   ////////         //////mpeItemInfo.Show();
+   ////////     }
+
+   ////////     //Uploads an items photo
+   ////////     protected void btnUpload_Click(object sender, EventArgs e)
+   ////////     {
+   ////////         try
+   ////////         {
+   ////////             //////string itemNum = ViewState["itemNum"].ToString();
+   ////////             //////if (fuItemPhoto.FileName != null)
+   ////////             //////{
+   ////////             //////    //if (fuItemPhoto.PostedFile.ContentType == "image/jpg" || fuItemPhoto.PostedFile.ContentType == "image/jpeg")
+   ////////             //////    //{
+   ////////             //////    fuItemPhoto.SaveAs(Server.MapPath("~/catalog_images/" + itemNum.Trim() + ".jpg"));
+   ////////             //////    divOptions.Visible = true;
+   ////////             //////    LoadItemInfo();
+   ////////             //////    mpeItemInfo.Show();
+   ////////             //////    //}
+   ////////             //////}
+   ////////         }
+   ////////         catch (Exception ex)
+   ////////         {
+   ////////             //CommonCode error = new CommonCode();
+   ////////             //error.ReportError(ex.Message, "btnUpload_Click: catalog.aspx.cs", Session["username"].ToString());
+   ////////             //divMessage.Visible = true;
+   ////////             //litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+   ////////         }
+   ////////     }
+
+   ////////     //Emails a description suggestion 
+   ////////     protected void btnSubmit_Click(object sender, EventArgs e)
+   ////////     {
+   ////////         try
+   ////////         {
+   ////////             //////    string toAddress, fromAddress, fromName, subject, content, phone, description, department;
+
+   ////////             //////    if (txtPhone.Text == "") { phone = ""; } else { phone = txtPhone.Text.Trim(); }
+   ////////             //////    /*
+   ////////             //////     * MailMessage mail = new MailMessage(from, to, subject, content);
+   ////////             //////    SmtpClient smtp = new SmtpClient("mcis.washington.edu");
+   ////////             //////    smtp.Send(mail);
+   ////////             //////     * */
+
+   ////////             //////    toAddress = "pmmhelp@uw.edu";
+   ////////             //////    fromAddress = txtEmail.Text.Trim();
+   ////////             //////    fromName = txtName.Text.Trim();
+   ////////             //////    department = txtDepartment.Text.Trim();
+   ////////             //////    description = txtDescription.Text.Trim();
+
+   ////////             //////    if (fromAddress.Length > 0 && fromName.Length > 0 && department.Length > 0 && description.Length > 0)
+   ////////             //////    {
+   ////////             //////        subject = "Web Item Catalog - Item# " + lblItemNum.Text;
+   ////////             //////        content = "Alternate Description Request from:  " + fromName + Environment.NewLine + Environment.NewLine +
+   ////////             //////                   "Department:  " + department + Environment.NewLine + Environment.NewLine + "Phone:  " + phone + Environment.NewLine +
+   ////////             //////                 Environment.NewLine +
+   ////////             //////                  "... for Item#:  " + lblItemNum.Text + Environment.NewLine + Environment.NewLine + description;
+   ////////             //////        MailMessage mail = new MailMessage(fromAddress, toAddress, subject, content);
+   ////////             //////        SmtpClient smtp = new SmtpClient("mcis.washington.edu");
+   ////////             //////        smtp.Send(mail);
+   ////////             //////        txtName.Text = "";
+   ////////             //////        txtEmail.Text = "";
+   ////////             //////        txtDepartment.Text = "";
+   ////////             //////        txtPhone.Text = "";
+   ////////             //////        txtDescription.Text = "";
+   ////////             //////        mvItemInfo.ActiveViewIndex = 0;
+   ////////             //////    }
+   ////////         }
+   ////////         catch (Exception ex)
+   ////////         {
+   ////////             //CommonCode error = new CommonCode();
+   ////////             //error.ReportError(ex.Message, "btnSubmit_Click: catalog.aspx.cs", Session["username"].ToString());
+   ////////             //divMessage.Visible = true;
+   ////////             //litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+   ////////         }
+   ////////     }
+
+   ////////     //Cancels out of the suggestion form
+   ////////     protected void btnCancel_Click(object sender, EventArgs e)
+   ////////     {
+   ////////         //////txtDepartment.Text = "";
+   ////////         //////txtPhone.Text = "";
+   ////////         //////txtDescription.Text = "";
+   ////////         //////mvItemInfo.ActiveViewIndex = 0;
+   ////////     }
+
+   ////////     //Loads the item information when an item is selected from the results
+   ////////     protected void LoadItemInfo()
+   ////////     {
+   ////////         dbaseConn = new SqlConnection(GetAccess());
+   ////////         try
+   ////////         {
+   ////////         }
+   ////////         catch (Exception ex)
+   ////////         {
+   ////////         }
+   ////////         finally
+   ////////         {
+   ////////             dbaseConn.Close();
+   ////////         }
+   ////////     }       
+
+    //////protected void lbtnSuggest_Click(object sender, EventArgs e)
+        //////{
+        //////    try
+        //////    {
+        //////    //////    mvItemInfo.ActiveViewIndex = 2;
+        //////    // lblNursing.Text = "Test";
+        //////    // string sql = @"SELECT NAME, EMAIL FROM USR WHERE USR_ID = '"; // + Session["username"].ToString() + "'";
+
+        //////    //---x--- string sql = @"SELECT NAME, EMAIL FROM tblUserData WHERE USR_ID = '" + Session["username"].ToString() + "'";
+        //////    ////////SqlCommand comm = new SqlCommand(sql, amcConn);
+
+        //////    //////////amcConn.Open();
+        //////    //////////SqlDataReader dr = comm.ExecuteReader();
+
+        //////    //////////while (dr.Read())
+        //////    //////////{
+        //////    //////////    lblName.Text = string.Format("{0} {1}", dr[0].ToString().Trim(), dr[1].ToString().Trim());
+        //////    //////////    lblEmail.Text = dr[2].ToString().Trim();
+        //////    //////////}
+        //////    }
+        //////    catch (Exception ex)
+        //////    {
+        //////       // CommonCode error = new CommonCode();
+        //////        //error.ReportError(ex.Message, "lbtnSuggest_Click: catalog.aspx.cs", Session["username"].ToString());
+        //////        //divMessage.Visible = true;
+        //////        //litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+        //////    }
+        //////}
