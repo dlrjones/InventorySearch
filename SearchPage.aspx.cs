@@ -142,7 +142,7 @@ namespace InventorySearch
              "         WHEN '1001' THEN 'OR' " +
              "         WHEN '1002' THEN 'MED STORES' " +
              "         WHEN '1003' THEN 'IMPLANTS' " +
-             "         WHEN '2001' THEN 'ANGIO' " +
+           //  "         WHEN '2001' THEN 'ANGIO' " +
              "         ELSE 'STANDARDS' " +
              "         END) AS LOCATION, " +
              " '' AS IMAGE, " +
@@ -315,9 +315,9 @@ namespace InventorySearch
                 case 1:
                     locationID = "1002";        //MedStores
                     break;
-                case 2:
-                    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
-                    break;
+                //case 2:
+                //    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
+                //    break;
                 case 3:
                     locationID = "1001";        //OR
                     break;
@@ -333,7 +333,7 @@ namespace InventorySearch
                 default: break;
             }
             if (locationID == "0")
-                locationID = "'1000','1001','1002','1003','2001','2539'";
+                locationID = "'1000','1001','1002','1003','2539'";
         }    
 
         protected void ibtnSearch_Click(object sender, ImageClickEventArgs e)
@@ -369,7 +369,6 @@ namespace InventorySearch
                 divMessage.Visible = true;
                 litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
             }
-
         }
 
         protected void gvItemList_PageIndexChanging(object sender, GridViewPageEventArgs e)
@@ -401,9 +400,9 @@ namespace InventorySearch
                 case "MED STORES":
                     loc = "1002";
                     break;
-                case "ANGIO":
-                    loc = "2001"; //INV_TOUCHSCAN
-                    break;
+                //case "ANGIO":
+                //    loc = "2001"; //INV_TOUCHSCAN
+                //    break;
                 case "OR":
                     loc = "1001";
                     break;
@@ -417,7 +416,7 @@ namespace InventorySearch
                     loc = "2539";
                     break;
                 default:
-                    loc = "1000,1001,1002,1003,2001,2539";
+                    loc = "1000,1001,1002,1003,2539";
                     break;
             }
             return loc;
@@ -425,8 +424,6 @@ namespace InventorySearch
 
         protected void ddlLocation_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int x = 0;
-            x++;
             switch (ddlLocation.SelectedIndex)
             {
                 case 0:
@@ -435,9 +432,9 @@ namespace InventorySearch
                 case 1:
                     locationID = "1002";        //MedStores
                     break;
-                case 2:
-                    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
-                    break;
+                //case 2:
+                //    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
+                //    break;
                 case 3:
                     locationID = "1001";        //OR
                     break;
@@ -456,13 +453,27 @@ namespace InventorySearch
                     break;
             }
             if (locationID == "0")
-                locationID = "'1000','1001','1002','1003','2001','2539'";
+                locationID = "'1000','1001','1002','1003','2539'";
 
             Session["locationID"] = locationID; // lID.ToString();
-            //ViewState["sql"] = null;   //used to tell PageLoad() not to use the cached ViewState["sql"], if there is one, because the user has selected a new location
-            //                           //the ViewState is set when the user clicks the Search button (see BuildSearch below) and ViewState["sql"] is the query for the last location.
-            //Page_Load(sender, e);
             LoadData();
+        }
+
+        protected void imgItem_Click(object sender, ImageClickEventArgs e)
+
+        {
+            Server.MapPath("~/details.aspx");
+            string[] arg = new string[2];
+            arg = ((ImageButton)sender).CommandArgument.ToString().Split(';');
+
+            string item = arg[0].ToString().Trim();
+            Session["locationID"] = GetLocationCode(arg[1]);
+            Session["connect"] = GetAccess();
+            string query = "details.aspx?item=" + item;
+            string newWin = "window.open('" + query + "','_blank');";
+            //Session["locationID"] = GetLocationCode();
+            ClientScript.RegisterClientScriptBlock(this.GetType(), "OpenWindow", newWin, true);
+
         }
     }
 }
