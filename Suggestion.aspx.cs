@@ -21,7 +21,7 @@ namespace InventorySearch
 
                 if (txtPhone.Text == "") { phone = ""; } else { phone = txtPhone.Text.Trim(); }
 
-                toAddress = "dlrjones@uw.edu";
+                toAddress = "pmmhelp@uw.edu";                      //"dlrjones@uw.edu";
                 fromAddress = txtEmail.Text.Trim();
                 fromName = txtName.Text.Trim();
                 department = txtDepartment.Text.Trim();
