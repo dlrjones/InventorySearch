@@ -126,6 +126,14 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
+                                                        <td class="tdBold">
+                                                            UWMC Item Number:
+                                                        </td>
+                                                        <td class="tdDetailsTable">
+                                                            <asp:Label ID="lblUWMC" runat="server"></asp:Label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
                                                         <td colspan="2" style="padding:0;">
                                                             <div style="background-color:#7d7898;color:White;margin-top:-20px; padding:-1px;width:700px; height:30px;">
                                                                 <h4>Manufacturer Details</h4>

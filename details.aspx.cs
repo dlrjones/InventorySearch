@@ -37,6 +37,7 @@ namespace InventorySearch
        
         private void SetDataView(string sql)
         {
+            string itemNo = "";
             dbaseConn = new SqlConnection(GetAccess());
             SqlCommand comm = new SqlCommand(sql, dbaseConn);
             dbaseConn.Open();
@@ -52,6 +53,7 @@ namespace InventorySearch
             {
                 while (dr.Read())
                 {
+                    itemNo = dr[0].ToString().Trim();
                     lblDescription.Text = dr[1].ToString().Trim();
                     if (dr[4].ToString().Trim() != "")
                     {
@@ -91,8 +93,40 @@ namespace InventorySearch
             }
             gvPackaging.DataSource = dsPackaging;
             gvPackaging.DataBind();
+            //next line,and all it leads to, added 12/4/18 dlrjones
+            GetUWItemNo(itemNo);            
             dbConnString = "";
             dbaseConn.Close();
+        }
+
+        private void GetUWItemNo(string itemNo)
+        {
+            try
+            {                
+                dbaseConn = new SqlConnection(GetBIAdminAccess());
+                SqlCommand comm = new SqlCommand(GetBiadminSQL(itemNo), dbaseConn);
+                dbaseConn.Open();
+                SqlDataReader dr = comm.ExecuteReader();
+                while (dr.Read())
+                {
+                    lblUWMC.Text = dr[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                lm.Write("details.GetUWItemNo:  " + ex.Message);
+                divMessage.Visible = true;
+                litMessage.Text = "Attn: An error occured and has been reported to the web administrator.";
+            }
+        }
+
+        private string GetBiadminSQL(string itemNo)
+        {
+            return "SELECT System_ItemNo " +
+                   "FROM[uwm_BIAdmin].[dbo].[SC_UWMItemMasterLink] " +
+                   "WHERE System_Id = 'UWMC' and UWM_ItemId = " +
+                   "(SELECT UWM_ItemId FROM[uwm_BIAdmin].[dbo].[SC_UWMItemMasterLink] " +
+                        "WHERE System_Id = 'HMC' and System_ItemNo = '" + itemNo + "')";             
         }
 
         protected void LoadData(string item)
@@ -181,6 +215,20 @@ namespace InventorySearch
             }
             return dbConnString;
         }
+
+        private string GetBIAdminAccess()
+        {
+            try
+            {
+                dbConnString = Session["BIAdmin"].ToString();
+            }
+            catch (Exception ex)
+            {
+                lm.Write("GetBIAdminAccess: " + Environment.NewLine + ex.Message);
+            }
+            return dbConnString;
+        }
+        
 
         protected void lbtnSuggest_Click(object sender, EventArgs e)
         {

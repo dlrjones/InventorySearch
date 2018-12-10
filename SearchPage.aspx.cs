@@ -271,6 +271,21 @@ namespace InventorySearch
             return dbaseConnStr;
         }
 
+        private string GetBIAdminAccess()
+        {
+            try
+            {
+                dbaseConnStr = ConfigurationManager.ConnectionStrings["cnctBIAdmin_HMC"].ConnectionString;
+                return dbaseConnStr;
+            }
+            catch (Exception ex)
+            {
+                lm.Write("GetAccess: " + Environment.NewLine + ex.Message);
+            }
+            return dbaseConnStr;
+        }
+
+
         protected string GetImageUrl(object itemNumber)
         {
             string url = null;
@@ -386,6 +401,7 @@ namespace InventorySearch
             string item = arg[0].ToString().Trim();
             Session["locationID"] = GetLocationCode(arg[1]);
             Session["connect"] = GetAccess();
+            Session["BIAdmin"] = GetBIAdminAccess();
             string query = "details.aspx?item=" + item;            
             string newWin = "window.open('" + query + "','_blank');";
             //Session["locationID"] = GetLocationCode();
