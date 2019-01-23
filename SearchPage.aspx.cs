@@ -333,23 +333,23 @@ namespace InventorySearch
                 //case 2:
                 //    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
                 //    break;
-                case 3:
+                case 2:
                     locationID = "1001";        //OR
                     break;
-                case 4:
+                case 3:
                     locationID = "1003";        //OR Implants
                     break;
-                case 5:
+                case 4:
                     locationID = "1000";        //Warehouse
                     break;
-                case 6:
+                case 5:
                     locationID = "2539";        //Standards
                     break;
                 default: break;
             }
             if (locationID == "0")
                 locationID = "'1000','1001','1002','1003','2539'";
-        }    
+        }
 
         protected void ibtnSearch_Click(object sender, ImageClickEventArgs e)
         {
@@ -451,16 +451,16 @@ namespace InventorySearch
                 //case 2:
                 //    locationID = "2001";        //Angio    (INV TOUCHSCAN ESI)
                 //    break;
-                case 3:
+                case 2:
                     locationID = "1001";        //OR
                     break;
-                case 4:
+                case 3:
                     locationID = "1003";        //OR Implants
                     break;
-                case 5:
+                case 4:
                     locationID = "1000";        //Warehouse
                     break;
-                case 6:
+                case 5:
                     locationID = "2539";        //Standards
                     break;
                 default:
