@@ -28,7 +28,7 @@ namespace InventorySearch
         private string dbaseConnStr = "";
         private string archivePath = "";
         private string locationID = "0";
-        private string descrCombo = "";
+       // private string descrCombo = "";
         private int totalItemCount = 0;
         private int pageCount = 20;
         private LogManager lm = LogManager.GetInstance();
@@ -303,13 +303,15 @@ namespace InventorySearch
 
                             for (int m = 0; m < arrSearch.Count; m++)
                             {
-                                sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE '%" + arrSearch[m] + "%' ";
+                                sql += "OR t1.DESCR3 LIKE '%" + arrSearch[m] + "%' ";
+                            }
+
+                            for (int n = 0; n < arrSearch.Count; n++)
+                            {
+                                sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE '%" + arrSearch[n] + "%' ";
                             }
                         }
-                        //sql += "OR (t1.DESCR LIKE '%" + searchText + "%') ";
-                        //sql += "OR (t1.DESCR1 LIKE '%" + searchText + "%') ";
-                        //sql += "OR (t1.DESCR2 LIKE '%" + searchText + "%') ";
-                        //sql += "OR (SC_UWMItemMaster.GHX_FullDescr LIKE '%" + searchText + "%') ";
+
                         break;
                     case "All":
                         sql += "AND " + searchBy + " LIKE '%" + searchText.Replace(" ", "%") + "%' ";
@@ -319,6 +321,10 @@ namespace InventorySearch
                 if (filter != "Exact" && filter != "Any" && searchBy == "t1.DESCR")
                 {
                     sql += "OR t1.DESCR LIKE '%" + searchText + "%' ";
+                    sql += "OR (t1.DESCR1 LIKE '%" + searchText + "%') ";
+                    sql += "OR (t1.DESCR2 LIKE '%" + searchText + "%') ";
+                    sql += "OR (t1.DESCR3 LIKE '%" + searchText + "%') ";
+                    sql += "OR (SC_UWMItemMaster.GHX_FullDescr LIKE '%" + searchText + "%') ";
                 }
 
                 sql += "GROUP BY t1.ITEM_NO, t1.DESCR, t1.CTLG_NO,QTY,SLOC_ITEM.LOC_ID, IVP.PRICE, t1.ITEM_ID,t1.DESCR1," +
@@ -465,9 +471,9 @@ namespace InventorySearch
         protected void gvItemList_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             //dTable.Clear();
-            
-            //gvItemList.PageIndex = e.NewPageIndex;            
-            //LoadData(Session["pageSQL"].ToString());
+
+            gvItemList.PageIndex = e.NewPageIndex;
+            LoadData(Session["pageSQL"].ToString());
         }
 
         //protected void gvItemList_SelectedIndexChanged(object sender, EventArgs e)
