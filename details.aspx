@@ -39,7 +39,7 @@
                     </div>
         </div>
     <div>      
-         <cc1:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" Width="720px" Height="630" style="margin-right: 0px;">       
+         <cc1:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" Width="720px" Height="750" style="margin-right: 0px;">       
             <cc1:TabPanel ID="Details" runat="server" HeaderText="Details" > 
                 <ContentTemplate>
                                             <div>
@@ -75,6 +75,14 @@
                                                         </td>
                                                         <td class="tdDetailsTable">
                                                             <asp:Label ID="lblSurgery" runat="server"></asp:Label>
+                                                        </td>
+                                                    </tr>
+                                                     <tr>
+                                                        <td class="tdBold">
+                                                            GHX Description:
+                                                        </td>
+                                                        <td class="tdDetailsTable">
+                                                            <asp:Label ID="lblGHX" runat="server"><i>NO ALTERNATE DESCRIPTION</i></asp:Label>
                                                         </td>
                                                     </tr>
                                                     <tr>

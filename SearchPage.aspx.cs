@@ -28,6 +28,7 @@ namespace InventorySearch
         private string dbaseConnStr = "";
         private string archivePath = "";
         private string locationID = "0";
+        private string descrCombo = "";
         private int totalItemCount = 0;
         private int pageCount = 20;
         private LogManager lm = LogManager.GetInstance();
@@ -79,9 +80,46 @@ namespace InventorySearch
             }
         }
 
+        protected void LoadData(string pageSQL) {           
+            gvItemList.PageSize = Convert.ToInt16(DropDownList1.SelectedValue);
+            int sqlLen = pageSQL.Length;
+            string subStr = pageSQL.Trim().Substring(6, sqlLen - 7);
+            
+            string sql = "declare @NameTable TABLE(rowNum int, [Item #] varchar(20), Description varchar(80), [Catalog #] varchar(20), Stocked bit, Location varchar(20),Image varchar(1), Price money) " +
+                           "INSERT INTO @NameTable " + 
+                "SELECT * FROM ( SELECT RowNum = ROW_NUMBER() OVER(ORDER BY t1.ITEM_NO), " + subStr +
+                         " ) AS TBL " +
+                        "WHERE TBL.RowNum between((" + gvItemList.PageIndex + " * " + gvItemList.PageSize + ")+1) and((" + gvItemList.PageIndex + " + 1) * " + gvItemList.PageSize + ") " +
+                        "ORDER BY TBL.RowNum " +
+                        "SELECT [Item #], Description, [Catalog #], Stocked, Location, Image, Price FROM @NameTable ";
+
+            dbaseConn = new SqlConnection(GetAccess());
+            dbaseConn.Open();
+            dataAdapter = new SqlDataAdapter(sql, dbaseConn);
+            dataAdapter.Fill(dTable);
+
+           // ParseDataSet(dTable);
+            try
+            {
+                ParseDataSet(dTable);
+                BindGrid();
+            }                   
+            catch (Exception ex)
+            {
+                lm.Write("LoadData: " + Environment.NewLine + ex.Message);
+            }
+            finally
+            {
+                dbaseConnStr = "";
+                dbaseConn.Close();
+            }
+            
+}
+
         protected void LoadData()
         {
             string sql = BuildSQL();
+            Session.Add("pageSql", sql);
             SqlDataSource1.SelectCommand = sql;
             int indx = 0;
             int col = 0;
@@ -142,21 +180,22 @@ namespace InventorySearch
              "         WHEN '1001' THEN 'OR' " +
              "         WHEN '1002' THEN 'MED STORES' " +
              "         WHEN '1003' THEN 'IMPLANTS' " +
-           //  "         WHEN '2001' THEN 'ANGIO' " +
+             //  "         WHEN '2001' THEN 'ANGIO' " +
              "         ELSE 'STANDARDS' " +
              "         END) AS LOCATION, " +
              " '' AS IMAGE, " +
              "'$' + CONVERT(VARCHAR(10), CONVERT(MONEY, IVP.PRICE)) AS PRICE " +
-            "FROM dbo.ITEM AS t1 " +
-            "JOIN dbo.SLOC_ITEM ON t1.ITEM_ID = SLOC_ITEM.ITEM_ID " +
-            "JOIN dbo.ITEM_VEND_PKG IVP ON IVP.ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID ";
-              
+            "FROM [h-hemm].dbo.ITEM AS t1 " +
+            "JOIN [h-hemm].dbo.SLOC_ITEM ON t1.ITEM_ID = SLOC_ITEM.ITEM_ID " +
+            "JOIN [h-hemm].dbo.ITEM_VEND_PKG IVP ON IVP.ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID " +
+            "LEFT OUTER JOIN dbo.[SC_UWMItemMaster] ON [SC_UWMItemMaster].UWM_ItemId = t1.ITEM_ID ";
+
             if (searchClick)
                 sql = BuildSearch(sql);
             else
             {
                 sql += where +
-                    "AND IVP.SEQ_NO = (SELECT MAX(SEQ_NO) FROM dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID) " +
+                    "AND IVP.SEQ_NO = (SELECT MAX(SEQ_NO) FROM [h-hemm].dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID) " +
                     "ORDER BY ITEM_NO";
             }
             return sql;                
@@ -167,6 +206,7 @@ namespace InventorySearch
             string searchText = txtSearch.Text.Trim().ToUpper();
             string filter = ddlSearchFilter.Text;
             string searchBy = ddlSearchBy.Text;
+            
 
             try
             {
@@ -174,29 +214,30 @@ namespace InventorySearch
                 {
                     sql = "SELECT distinct ITEM_NO, DESCR, t1.CTLG_NO, '$' + CONVERT(VARCHAR(10), CONVERT(MONEY, IVP.PRICE)) AS PRICE," +
                             "CONVERT(BIT,0) AS STOCKED " +
-                            "FROM dbo.ITEM AS t1 " +
-                            "JOIN dbo.ITEM_VEND ON t1.ITEM_ID = ITEM_VEND.ITEM_ID " +
-                            "JOIN dbo.ITEM_VEND_PKG IVP ON IVP.ITEM_VEND_ID = ITEM_VEND.ITEM_VEND_ID " +
+                            "FROM [h-hemm].dbo.ITEM AS t1 " +
+                            "JOIN [h-hemm].dbo.ITEM_VEND ON t1.ITEM_ID = ITEM_VEND.ITEM_ID " +
+                            "JOIN [h-hemm].dbo.ITEM_VEND_PKG IVP ON IVP.ITEM_VEND_ID = ITEM_VEND.ITEM_VEND_ID " +
+                            "JOIN dbo.[SC_UWMItemMaster] ON [SC_UWMItemMaster].UWM_ItemId = t1.ITEM_ID " +
                             "WHERE t1.ITEM_ID IN " +
                             "(SELECT ITEM_ID " +
-                            "FROM dbo.ITEM WHERE ITEM.STAT = 1 " +
+                            "FROM [h-hemm].dbo.ITEM WHERE ITEM.STAT = 1 " +
                             "AND ITEM.CTLG_ITEM_IND = 'Y' " +
                             "EXCEPT " +
                             "SELECT ITEM_ID " +
-                            "FROM dbo.SLOC_ITEM " +
+                            "FROM [h-hemm].dbo.SLOC_ITEM " +
                             "WHERE SLOC_ITEM.STAT = 1) " +
                             "AND t1.STAT = 1 " +
-                            "AND IVP.SEQ_NO = (SELECT MAX (SEQ_NO) FROM dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = ITEM_VEND.ITEM_VEND_ID) " +
-                            "AND ITEM_VEND.SEQ_NO = (SELECT MIN (SEQ_NO) FROM dbo.ITEM_VEND WHERE ITEM_VEND.ITEM_ID = t1.ITEM_ID) ";
+                            "AND IVP.SEQ_NO = (SELECT MAX (SEQ_NO) FROM [h-hemm].dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = ITEM_VEND.ITEM_VEND_ID) " +
+                            "AND ITEM_VEND.SEQ_NO = (SELECT MIN (SEQ_NO) FROM [h-hemm].dbo.ITEM_VEND WHERE ITEM_VEND.ITEM_ID = t1.ITEM_ID) ";
                 }
                 else
                 {
                     if (searchBy.Equals("MFR.NAME"))
-                        sql += "JOIN MFR ON MFR.MFR_ID=t1.MFR_ID ";
+                        sql += "JOIN [h-hemm].dbo.MFR ON MFR.MFR_ID=t1.MFR_ID ";
 
                     sql += "WHERE SLOC_ITEM.STAT IN (1,2) " +
                      "AND SLOC_ITEM.LOC_ID IN (" + locationID + ") " +
-                     "AND IVP.SEQ_NO = (SELECT MAX (SEQ_NO) FROM dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID) ";
+                     "AND IVP.SEQ_NO = (SELECT MAX (SEQ_NO) FROM [h-hemm].dbo.ITEM_VEND_PKG WHERE ITEM_VEND_ID = SLOC_ITEM.ITEM_VEND_ID) ";
                 }
 
                 ArrayList arrSearch = new ArrayList();
@@ -206,16 +247,38 @@ namespace InventorySearch
                 {
                     case "Partial":
                         sql += "AND " + searchBy + " Like '%" + searchText + "%' ";
+                        if (searchBy == "t1.DESCR")
+                        {
+                            sql += "OR t1.DESCR = '" + searchText + "' ";
+                            sql += "OR t1.DESCR1 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR2 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR3 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE  '%" + arrSearch[0] + "%') ";
+                        }
                         break;
                     case "Exact":
                         sql += "AND " + searchBy + " = '" + searchText + "' ";
                         if (searchBy == "t1.DESCR")
                         {
                             sql += "OR t1.DESCR = '" + searchText + "' ";
+                            sql += "OR t1.DESCR1 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR2 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR3 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE  '%" + arrSearch[0] + "%') ";
                         }
                         break;
                     case "Any":
                         sql += "AND (" + searchBy + " LIKE '%" + arrSearch[0] + "%' ";
+                        if (searchBy == "t1.DESCR")
+                        {
+                            sql += "OR t1.DESCR1 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR2 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR t1.DESCR3 LIKE  '%" + arrSearch[0] + "%' ";
+                            sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE  '%" + arrSearch[0] + "%') ";
+                        }
+                        else
+                            sql += ") ";
+                        
                         if (arrSearch.Count > 1)
                         {
                             for (int i = 0; i < arrSearch.Count; i++)
@@ -230,10 +293,23 @@ namespace InventorySearch
 
                             for (int k = 0; k < arrSearch.Count; k++)
                             {
-                                sql += "OR t1.DESCR LIKE '%" + arrSearch[k] + "%' ";
+                                sql += "OR t1.DESCR1 LIKE '%" + arrSearch[k] + "%' ";
+                            }
+
+                            for (int l= 0; l < arrSearch.Count; l++)
+                            {
+                                sql += "OR t1.DESCR2 LIKE '%" + arrSearch[l] + "%' ";
+                            }
+
+                            for (int m = 0; m < arrSearch.Count; m++)
+                            {
+                                sql += "OR SC_UWMItemMaster.GHX_FullDescr LIKE '%" + arrSearch[m] + "%' ";
                             }
                         }
-                        sql += "OR t1.DESCR LIKE '%" + searchText + "%') ";
+                        //sql += "OR (t1.DESCR LIKE '%" + searchText + "%') ";
+                        //sql += "OR (t1.DESCR1 LIKE '%" + searchText + "%') ";
+                        //sql += "OR (t1.DESCR2 LIKE '%" + searchText + "%') ";
+                        //sql += "OR (SC_UWMItemMaster.GHX_FullDescr LIKE '%" + searchText + "%') ";
                         break;
                     case "All":
                         sql += "AND " + searchBy + " LIKE '%" + searchText.Replace(" ", "%") + "%' ";
@@ -245,8 +321,9 @@ namespace InventorySearch
                     sql += "OR t1.DESCR LIKE '%" + searchText + "%' ";
                 }
 
-                sql += "GROUP BY t1.ITEM_NO, t1.DESCR, t1.CTLG_NO,QTY,SLOC_ITEM.LOC_ID, IVP.PRICE, t1.ITEM_ID ";
-                sql += "ORDER BY t1.ITEM_NO";
+                sql += "GROUP BY t1.ITEM_NO, t1.DESCR, t1.CTLG_NO,QTY,SLOC_ITEM.LOC_ID, IVP.PRICE, t1.ITEM_ID,t1.DESCR1," +
+                        "t1.DESCR2,SC_UWMItemMaster.GHX_FullDescr ";
+         //       sql += "ORDER BY t1.ITEM_NO";
 
             }
             catch (Exception ex)
@@ -261,7 +338,8 @@ namespace InventorySearch
         {
             try
             {
-                dbaseConnStr = ConfigurationManager.ConnectionStrings["amc_userConnectionString"].ConnectionString;
+                //dbaseConnStr = ConfigurationManager.ConnectionStrings["amc_userConnectionString"].ConnectionString;
+                dbaseConnStr = ConfigurationManager.ConnectionStrings["cnctBIAdmin_HMC"].ConnectionString;                
                 return dbaseConnStr;
             }
             catch (Exception ex)
@@ -349,7 +427,7 @@ namespace InventorySearch
             }
             if (locationID == "0")
                 locationID = "'1000','1001','1002','1003','2539'";
-        }
+        }    
 
         protected void ibtnSearch_Click(object sender, ImageClickEventArgs e)
         {
@@ -358,9 +436,7 @@ namespace InventorySearch
             LoadData();
             searchClick = false;
         }
-       
-        
-
+               
         protected void ibtnClear_Click(object sender, ImageClickEventArgs e)
         {
             txtSearch.Text = "";
@@ -388,9 +464,16 @@ namespace InventorySearch
 
         protected void gvItemList_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvItemList.PageIndex = e.NewPageIndex;
-            LoadData();
-        }       
+            //dTable.Clear();
+            
+            //gvItemList.PageIndex = e.NewPageIndex;            
+            //LoadData(Session["pageSQL"].ToString());
+        }
+
+        //protected void gvItemList_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    ScriptManager.RegisterStartupScript(Page, this.GetType(), "ScrollPage", "ResetScrollPosition();", true);
+        //}
 
         protected void lbtnItemNum_Click(object sender, EventArgs e)
         {            
@@ -491,5 +574,7 @@ namespace InventorySearch
             ClientScript.RegisterClientScriptBlock(this.GetType(), "OpenWindow", newWin, true);
 
         }
+
+     
     }
 }

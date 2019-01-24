@@ -75,6 +75,16 @@ namespace InventorySearch
                         lblSurgery.Text = "<i>NO ALTERNATE DESCRIPTION</i>";
                         lblSurgery.Enabled = false;
                     }
+                    if (dr[13].ToString().Trim() != "")
+                    {
+                        lblGHX.Text = dr[13].ToString().Trim().ToUpper();  //dr[11].ToString().Trim().ToUpper();
+                        lblGHX.Enabled = true;
+                    }
+                    else
+                    {
+                        lblGHX.Text = "<i>NO ALTERNATE DESCRIPTION</i>";
+                        lblGHX.Enabled = false;
+                    }
                     lblOUOM.Text = dr[5].ToString().Trim();
                     dtPackaging.Rows.Add(dr[6].ToString().Trim(), dr[7].ToString().Trim(), dr[8].ToString().Trim());
                     stocked = (Boolean)dr[3];
@@ -122,11 +132,13 @@ namespace InventorySearch
 
         private string GetBiadminSQL(string itemNo)
         {
-            return "SELECT System_ItemNo " +
+            string sql = 
+             "SELECT System_ItemNo " +
                    "FROM[uwm_BIAdmin].[dbo].[SC_UWMItemMasterLink] " +
                    "WHERE System_Id = 'UWMC' and UWM_ItemId = " +
                    "(SELECT UWM_ItemId FROM[uwm_BIAdmin].[dbo].[SC_UWMItemMasterLink] " +
-                        "WHERE System_Id = 'HMC' and System_ItemNo = '" + itemNo + "')";             
+                        "WHERE System_Id = 'HMC' and System_ItemNo = '" + itemNo + "')";
+            return sql;
         }
 
         protected void LoadData(string item)
@@ -147,7 +159,7 @@ namespace InventorySearch
                 0 - t1.ITEM_NO
                 1 - t1.DESCR 
                 2 - t1.CTLG_NO
-                3 = STOCKED
+                3 - STOCKED
                 4 - t1.DESCR2
                 5 - PKG_TO_UM_CD --> use ORDER_UM_CD from Item_Vend table
                 6 - PKG_UM_CD
@@ -157,26 +169,29 @@ namespace InventorySearch
                 10 - CTLG_NO
                 11 - t1.DESCR1
                 12 - QTY
+                13 - GHX_FullDescr
            */
 
             return "SELECT t1.ITEM_NO, t1.DESCR, t1.CTLG_NO, " +
-     "CONVERT(BIT, isnull((SELECT QTY FROM dbo.SLOC_ITEM WHERE (LOC_ID IN (" + Session["locationID"] + ")) AND (ITEM_ID = t1.ITEM_ID)),0)) AS STOCKED, " +
+     "CONVERT(BIT, isnull((SELECT QTY FROM [h-hemm].dbo.SLOC_ITEM WHERE (LOC_ID IN (" + Session["locationID"] + ")) AND (ITEM_ID = t1.ITEM_ID)),0)) AS STOCKED, " +
     // "CONVERT(BIT, isnull(0,0)) AS STOCKED, " + 
      "t1.DESCR2,  " +
-     "SUBSTRING(dbo.ITEM_VEND.ORDER_UM_CD, 7, 2) AS PKG_TO_UM_CD, " +
-    // "SUBSTRING(dbo.ITEM_VEND_PKG.TO_UM_CD, 7, 2) AS PKG_TO_UM_CD, " +
-     "SUBSTRING(dbo.ITEM_VEND_PKG.UM_CD, 7, 2) AS PKG_UM_CD, dbo.ITEM_VEND_PKG_FACTOR.TO_QTY AS UM_QTY, " +
-     "ITEM_VEND_PKG.PRICE AS UM_PRICE, MFR.NAME, t1.CTLG_NO, t1.DESCR1, " +
-     "(SELECT QTY FROM dbo.SLOC_ITEM WHERE (LOC_ID IN (" + Session["locationID"] + ")) AND (ITEM_ID = t1.ITEM_ID)) AS QTY " +
-    "FROM ITEM AS t1 " +
-    "JOIN ITEM_VEND ON ITEM_VEND.ITEM_ID = t1.ITEM_ID " +
-    "JOIN MFR ON t1.MFR_ID = MFR.MFR_ID " +
-    "JOIN ITEM_VEND_PKG ON ITEM_VEND.ITEM_VEND_ID = ITEM_VEND_PKG.ITEM_VEND_ID " +
-    "JOIN ITEM_VEND_PKG_FACTOR ON dbo.ITEM_VEND_PKG.ITEM_VEND_ID = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_ID AND " +
-                          "dbo.ITEM_VEND_PKG.ITEM_VEND_IDB = dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_IDB AND " +
-                          "dbo.ITEM_VEND_PKG.UM_CD = dbo.ITEM_VEND_PKG_FACTOR.UM_CD AND " +
-                          "dbo.ITEM_VEND_PKG.TO_UM_CD = dbo.ITEM_VEND_PKG_FACTOR.TO_UM_CD " +
-    "JOIN VEND ON dbo.ITEM_VEND.VEND_ID = dbo.VEND.VEND_ID " +
+     "SUBSTRING([h-hemm].dbo.ITEM_VEND.ORDER_UM_CD, 7, 2) AS PKG_TO_UM_CD, " +
+     // "SUBSTRING(dbo.ITEM_VEND_PKG.TO_UM_CD, 7, 2) AS PKG_TO_UM_CD, " +
+     "SUBSTRING([h-hemm].dbo.ITEM_VEND_PKG.UM_CD, 7, 2) AS PKG_UM_CD, [h-hemm].dbo.ITEM_VEND_PKG_FACTOR.TO_QTY AS UM_QTY, " +
+     "[h-hemm].dbo.ITEM_VEND_PKG.PRICE AS UM_PRICE, MFR.NAME, t1.CTLG_NO, t1.DESCR1, " +
+     "(SELECT QTY FROM [h-hemm].dbo.SLOC_ITEM WHERE (LOC_ID IN (" + Session["locationID"] + ")) AND (ITEM_ID = t1.ITEM_ID)) AS QTY, " +
+     "SC_UWMItemMaster.GHX_FullDescr AS DESCR_GHX " +
+    "FROM [h-hemm].dbo.ITEM AS t1 " +
+    "JOIN [h-hemm].dbo.ITEM_VEND ON ITEM_VEND.ITEM_ID = t1.ITEM_ID " +
+    "JOIN [h-hemm].dbo.MFR ON t1.MFR_ID = MFR.MFR_ID " +
+    "JOIN [h-hemm].dbo.ITEM_VEND_PKG ON ITEM_VEND.ITEM_VEND_ID = ITEM_VEND_PKG.ITEM_VEND_ID " +
+    "JOIN [h-hemm].dbo.ITEM_VEND_PKG_FACTOR ON [h-hemm].dbo.ITEM_VEND_PKG.ITEM_VEND_ID = [h-hemm].dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_ID AND " +
+                          "[h-hemm].dbo.ITEM_VEND_PKG.ITEM_VEND_IDB = [h-hemm].dbo.ITEM_VEND_PKG_FACTOR.ITEM_VEND_IDB AND " +
+                          "[h-hemm].dbo.ITEM_VEND_PKG.UM_CD = [h-hemm].dbo.ITEM_VEND_PKG_FACTOR.UM_CD AND " +
+                          "[h-hemm].dbo.ITEM_VEND_PKG.TO_UM_CD = [h-hemm].dbo.ITEM_VEND_PKG_FACTOR.TO_UM_CD " +
+    "JOIN [h-hemm].dbo.VEND ON [h-hemm].dbo.ITEM_VEND.VEND_ID = [h-hemm].dbo.VEND.VEND_ID " +
+    "LEFT OUTER JOIN dbo.SC_UWMItemMaster ON SC_UWMItemMaster.UWM_ItemId = t1.ITEM_ID " +
     "WHERE (t1.ITEM_NO = '" + itemNum.Trim() + "') " +
     "AND (t1.STAT IN (1, 2)) " +
     "AND ITEM_VEND.SEQ_NO = 1";

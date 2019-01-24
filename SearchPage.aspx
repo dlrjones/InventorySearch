@@ -58,11 +58,7 @@
         .auto-style11 {
             width: 195px;
         }
-        .auto-style12 {
-            width: 53%;
-            float: left;
-        }
-    </style>
+        </style>
 </head>
 <body>
     
@@ -147,7 +143,8 @@
                                         <td class="auto-style4">
                                             &nbsp;</td>
                                         <td>
-                                            <asp:DropDownList ID="ddlLocation" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlLocation_SelectedIndexChanged" CausesValidation="False">
+                                            <asp:DropDownList ID="ddlLocation" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlLocation_SelectedIndexChanged" 
+                                                CausesValidation="False">
                                                 <asp:ListItem Value="ALL" Selected="True">All</asp:ListItem>
                                                 <asp:ListItem Value="MED">Med Stores</asp:ListItem>
                                              <%--   <asp:ListItem Value="ANGIO">Angio</asp:ListItem>     --%>
@@ -193,9 +190,13 @@
                                     </tr>
                                 </table>
         <div style="width: 527px">
-            <asp:GridView ID="gvItemList" runat="server" Height="266px" Width="646px" style="margin-right: 0px; margin-left: 70px" CellPadding="4" ForeColor="#D7F3DB" GridLines="None" AllowPaging="True" ShowFooter="True" EnableTheming="False" OnPageIndexChanging="gvItemList_PageIndexChanging" PageSize="50" AutoGenerateColumns="False" DataSourceID="SqlDataSource1">
+            <asp:GridView ID="gvItemList" runat="server" Height="266px" Width="646px" style="margin-right: 0px; margin-left: 70px" 
+                CellPadding="4" ForeColor="#D7F3DB" GridLines="None" ShowFooter="True" EnableTheming="False" 
+                OnPageIndexChanging="gvItemList_PageIndexChanging" PageSize="50" AutoGenerateColumns="False" DataSourceID="SqlDataSource1" 
+                AllowPaging="True" AllowCustomPaging="True">
+
                 <AlternatingRowStyle BackColor="White" ForeColor="#284775" />
-                <Columns>
+                <Columns>                     
                     <asp:TemplateField HeaderText="Item#" SortExpression="ITEM_NO">
                         <ItemTemplate>
                            <asp:LinkButton ID="lbtnItemNum" runat="server" Text='<%# Bind("[Item #]") %>' CssClass="gvControls" 
@@ -261,7 +262,7 @@
             </asp:GridView>
              <asp:HiddenField ID="hfdItemTarget" runat="server" />
            
-    <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:amc_userConnectionString %>" SelectCommand=""/>
+    <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:cnctBIAdmin_HMC %>" SelectCommand="SELECT * FROM [__EFMigrationsHistory]"/>
         </div>
     </form>
 </body>
