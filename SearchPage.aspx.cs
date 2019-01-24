@@ -85,23 +85,21 @@ namespace InventorySearch
             int sqlLen = pageSQL.Length;
             string subStr = pageSQL.Trim().Substring(6, sqlLen - 7);
             
-            string sql = "declare @NameTable TABLE(rowNum int, [Item #] varchar(20), Description varchar(80), [Catalog #] varchar(20), Stocked bit, Location varchar(20),Image varchar(1), Price money) " +
-                           "INSERT INTO @NameTable " + 
+            string sql = "declare @ItemTable TABLE(rowNum int, [Item #] varchar(20), Description varchar(80), [Catalog #] varchar(20), Stocked bit, Location varchar(20),Image varchar(1), Price money) " +
+                           "INSERT INTO @ItemTable " + 
                 "SELECT * FROM ( SELECT RowNum = ROW_NUMBER() OVER(ORDER BY t1.ITEM_NO), " + subStr +
                          " ) AS TBL " +
                         "WHERE TBL.RowNum between((" + gvItemList.PageIndex + " * " + gvItemList.PageSize + ")+1) and((" + gvItemList.PageIndex + " + 1) * " + gvItemList.PageSize + ") " +
                         "ORDER BY TBL.RowNum " +
-                        "SELECT [Item #], Description, [Catalog #], Stocked, Location, Image, Price FROM @NameTable ";
-
+                        "SELECT [Item #], Description, [Catalog #], Stocked, Location, Image, Price FROM @ItemTable ";
+            SqlDataSource1.SelectCommand = sql;
             dbaseConn = new SqlConnection(GetAccess());
             dbaseConn.Open();
             dataAdapter = new SqlDataAdapter(sql, dbaseConn);
             dataAdapter.Fill(dTable);
-
-           // ParseDataSet(dTable);
             try
-            {
-                ParseDataSet(dTable);
+            {               
+              // ParseDataSet(dTable);
                 BindGrid();
             }                   
             catch (Exception ex)
@@ -158,13 +156,13 @@ namespace InventorySearch
 
         private void BindGrid()
         {
-            gvItemList.DataBind();
+                gvItemList.DataBind();
         }
 
         private void ParseDataSet(DataSet dsTemp)
         {
             totalItemCount = dsTemp.Tables[0].Rows.Count;
-            gvItemList.VirtualItemCount = totalItemCount;
+            gvItemList.VirtualItemCount = totalItemCount;            
             dTable = dsTemp;
         }
 
@@ -470,7 +468,7 @@ namespace InventorySearch
 
         protected void gvItemList_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            //dTable.Clear();
+            dTable.Clear();
 
             gvItemList.PageIndex = e.NewPageIndex;
             LoadData(Session["pageSQL"].ToString());

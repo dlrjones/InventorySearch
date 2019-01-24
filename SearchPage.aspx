@@ -262,7 +262,7 @@
             </asp:GridView>
              <asp:HiddenField ID="hfdItemTarget" runat="server" />
            
-    <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:cnctBIAdmin_HMC %>" SelectCommand="SELECT * FROM [__EFMigrationsHistory]"/>
+    <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:cnctBIAdmin_HMC %>" SelectCommand=""/>
         </div>
     </form>
 </body>
